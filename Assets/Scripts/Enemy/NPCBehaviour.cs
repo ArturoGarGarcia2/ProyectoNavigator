@@ -13,10 +13,11 @@ public class NPC_Behaviour : MonoBehaviour
     [SerializeField] private LayerMask obstacleMask;
 
     [Header("Tipo de NPC")]
-    [SerializeField] private NPCType npcType = NPCType.AlwaysActive;
+    [SerializeField] private NPCCategory npcCategory = NPCCategory.AlwaysActive;
+    [SerializeField] private NPCType npcType = NPCType.LightFear;
 
     [Header("Proximidad")]
-    [SerializeField] private float activationDistance = 5f; // para NPCs que se activan por proximidad
+    [SerializeField] private float activationDistance = 5f;
 
     private NPCState state;
     private NavMeshAgent agent;
@@ -25,14 +26,13 @@ public class NPC_Behaviour : MonoBehaviour
     {
         agent = GetComponent<NavMeshAgent>();
 
-        // Estado inicial según tipo
-        switch (npcType)
+        switch (npcCategory)
         {
-            case NPCType.AlwaysActive:
+            case NPCCategory.AlwaysActive:
                 state = NPCState.Active;
                 break;
-            case NPCType.LightTriggered:
-            case NPCType.ProximityTriggered:
+            case NPCCategory.LightTriggered:
+            case NPCCategory.ProximityTriggered:
                 state = NPCState.Inactive;
                 break;
         }
@@ -57,7 +57,7 @@ public class NPC_Behaviour : MonoBehaviour
         agent.isStopped = true;
 
         // Se activa si es LightTriggered y le da la luz
-        if (npcType == NPCType.LightTriggered && IsIlluminated())
+        if (npcCategory == NPCCategory.LightTriggered && IsIlluminated())
         {
             state = NPCState.Active;
             agent.isStopped = false;
@@ -65,7 +65,7 @@ public class NPC_Behaviour : MonoBehaviour
         }
 
         // Se activa si es ProximityTriggered y el jugador está cerca
-        if (npcType == NPCType.ProximityTriggered)
+        if (npcCategory == NPCCategory.ProximityTriggered)
         {
             float distanceToPlayer = Vector3.Distance(transform.position, player.transform.position);
             if (distanceToPlayer <= activationDistance)
@@ -79,14 +79,15 @@ public class NPC_Behaviour : MonoBehaviour
 
     void HandleActiveState()
     {
-        // TODOS los NPCs se detienen si les da la luz
-        if (IsIlluminated())
-        {
+        if (IsIlluminated() && npcType == NPCType.LightFear){
+            agent.isStopped = true;
+            return;
+        }
+        if (!IsIlluminated() && npcType == NPCType.DarkFear){
             agent.isStopped = true;
             return;
         }
 
-        // Si no hay luz, se mueve hacia el jugador
         agent.isStopped = false;
         agent.SetDestination(player.transform.position);
     }
@@ -121,9 +122,15 @@ public class NPC_Behaviour : MonoBehaviour
 
 public enum NPCType
 {
-    AlwaysActive,       // Siempre activo
-    LightTriggered,     // Se activa con la luz
-    ProximityTriggered  // Se activa por cercanía al jugador
+    LightFear,
+    DarkFear,
+}
+
+public enum NPCCategory
+{
+    AlwaysActive,
+    LightTriggered,
+    ProximityTriggered
 }
 
 public enum NPCState
