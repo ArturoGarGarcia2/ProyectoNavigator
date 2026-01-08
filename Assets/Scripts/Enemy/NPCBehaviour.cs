@@ -56,15 +56,13 @@ public class NPC_Behaviour : MonoBehaviour
     {
         agent.isStopped = true;
 
-        // Se activa si es LightTriggered y le da la luz
         if (npcCategory == NPCCategory.LightTriggered && IsIlluminated())
         {
             state = NPCState.Active;
             agent.isStopped = false;
-            agent.SetDestination(transform.position); // empieza quieto
+            agent.SetDestination(transform.position);
         }
 
-        // Se activa si es ProximityTriggered y el jugador está cerca
         if (npcCategory == NPCCategory.ProximityTriggered)
         {
             float distanceToPlayer = Vector3.Distance(transform.position, player.transform.position);
@@ -72,7 +70,7 @@ public class NPC_Behaviour : MonoBehaviour
             {
                 state = NPCState.Active;
                 agent.isStopped = false;
-                agent.SetDestination(transform.position); // empieza quieto
+                agent.SetDestination(transform.position);
             }
         }
     }
