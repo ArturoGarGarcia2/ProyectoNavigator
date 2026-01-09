@@ -66,6 +66,7 @@ public class NPC_Behaviour : MonoBehaviour
         if (npcCategory == NPCCategory.ProximityTriggered)
         {
             float distanceToPlayer = Vector3.Distance(transform.position, player.transform.position);
+
             if (distanceToPlayer <= activationDistance)
             {
                 state = NPCState.Active;
@@ -77,11 +78,16 @@ public class NPC_Behaviour : MonoBehaviour
 
     void HandleActiveState()
     {
-        if (IsIlluminated() && npcType == NPCType.LightFear){
+        bool illuminated = IsIlluminated();
+
+        if (illuminated && npcType == NPCType.LightFear)
+        {
             agent.isStopped = true;
             return;
         }
-        if (!IsIlluminated() && npcType == NPCType.DarkFear){
+
+        if (!illuminated && npcType == NPCType.DarkFear)
+        {
             agent.isStopped = true;
             return;
         }
@@ -92,7 +98,10 @@ public class NPC_Behaviour : MonoBehaviour
 
     bool IsIlluminated()
     {
-        Vector3 dirToNPC = transform.position - flashlight.position;
+        Collider col = GetComponent<Collider>();
+        Vector3 targetPoint = col.bounds.center;
+
+        Vector3 dirToNPC = targetPoint - flashlight.position;
         float distance = dirToNPC.magnitude;
 
         if (distance > flashlightDistance)
@@ -107,12 +116,9 @@ public class NPC_Behaviour : MonoBehaviour
             flashlight.position,
             dirToNPC.normalized,
             out RaycastHit hit,
-            flashlightDistance,
+            distance,
             obstacleMask))
-        {
-            if (hit.transform != transform)
-                return false;
-        }
+            return false;
 
         return true;
     }
