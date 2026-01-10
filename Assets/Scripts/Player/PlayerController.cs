@@ -7,6 +7,7 @@ public class PlayerController : MonoBehaviour
     [SerializeField] private Vector3 destination;
     [SerializeField] private Vector3 min, max;
     [SerializeField] private Camera camera;
+    [SerializeField] private Difficulty difficulty;
     
     void Start()
     {
@@ -27,4 +28,6 @@ public class PlayerController : MonoBehaviour
         }
         camera.transform.rotation = Quaternion.Euler(90f, 0f, 0f);
     }
+
+    public Difficulty GetDifficulty() => difficulty;
 }
