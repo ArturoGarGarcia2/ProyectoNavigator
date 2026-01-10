@@ -22,7 +22,7 @@ public class ChestHandler : MonoBehaviour
 
     private IEnumerator FreezeChest()
     {
-        yield return new WaitForSeconds(3.2f);
+        yield return new WaitForSeconds(3.1f);
         GetComponent<Animator>().speed = 0f;
     }
 
