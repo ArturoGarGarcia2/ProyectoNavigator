@@ -12,6 +12,9 @@ public class PlayerController : MonoBehaviour
     public float mouseSensitivity = 2f;
     public float maxLookAngle = 80f;
 
+    private bool flashlightActive = true;
+    public GameObject ambientLight;
+
     [Header("General")]
     [SerializeField] private Difficulty difficulty;
 
@@ -22,21 +25,32 @@ public class PlayerController : MonoBehaviour
     void Start()
     {
         rb = GetComponent<Rigidbody>();
-        rb.freezeRotation = true; // evita peonza por física
+        rb.freezeRotation = true;
 
         Cursor.lockState = CursorLockMode.Locked;
         Cursor.visible = false;
+        ambientLight.SetActive(false);
     }
 
     void Update()
     {
         ReadInput();
         HandleMouseLook();
+        HandleFlashlightToggle();
     }
 
     void FixedUpdate()
     {
         Move();
+    }
+
+    void HandleFlashlightToggle()
+    {
+        if (Input.GetKeyDown(KeyCode.F))
+        {
+            flashlightActive = !flashlightActive;
+            playerCamera.transform.GetChild(0).gameObject.SetActive(flashlightActive);
+        }
     }
 
     void ReadInput()
@@ -72,4 +86,5 @@ public class PlayerController : MonoBehaviour
     }
 
     public Difficulty GetDifficulty() => difficulty;
+    public bool GetFlashlightActive() => flashlightActive;
 }

@@ -133,9 +133,21 @@ public class EnemyBehaviour : MonoBehaviour
 
     bool IsIlluminated()
     {
-        Collider col = GetComponent<Collider>();
-        Vector3 targetPoint = col.bounds.center;
+        if (pc == null)
+            return false;
 
+        // 🔴 SI LA LINTERNA ESTÁ APAGADA, NO HAY LUZ
+        if (!pc.GetFlashlightActive())
+            return false;
+
+        if (flashlight == null)
+            return false;
+
+        Collider col = GetComponent<Collider>();
+        if (col == null)
+            return false;
+
+        Vector3 targetPoint = col.bounds.center;
         Vector3 dirToNPC = targetPoint - flashlight.position;
         float distance = dirToNPC.magnitude;
 
@@ -143,7 +155,6 @@ public class EnemyBehaviour : MonoBehaviour
             return false;
 
         float angle = Vector3.Angle(flashlight.forward, dirToNPC);
-
         if (angle > flashlightAngle * 0.5f)
             return false;
 
