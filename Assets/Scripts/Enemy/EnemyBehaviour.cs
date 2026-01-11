@@ -27,6 +27,10 @@ public class EnemyBehaviour : MonoBehaviour
     [SerializeField] private Difficulty difficulty;
     [SerializeField] private Material hardModeMaterial;
     [SerializeField] private GameObject skull;
+    [SerializeField] private int flankThreshold = 3;
+    [SerializeField] private float flankDistance = 3f;
+    private bool isFlanker;
+
 
     void Start()
     {
@@ -128,7 +132,11 @@ public class EnemyBehaviour : MonoBehaviour
         }
 
         agent.isStopped = false;
-        agent.SetDestination(player.transform.position);
+        // agent.SetDestination(player.transform.position);
+        if (isFlanker)
+            agent.SetDestination(GetGroupFlankPosition());
+        else
+            agent.SetDestination(player.transform.position);
     }
 
     bool IsIlluminated()
@@ -136,7 +144,6 @@ public class EnemyBehaviour : MonoBehaviour
         if (pc == null)
             return false;
 
-        // 🔴 SI LA LINTERNA ESTÁ APAGADA, NO HAY LUZ
         if (!pc.GetFlashlightActive())
             return false;
 
@@ -167,5 +174,46 @@ public class EnemyBehaviour : MonoBehaviour
             return false;
 
         return true;
+    }
+
+    int CountNearbyEnemies(float radius)
+    {
+        Collider[] hits = Physics.OverlapSphere(
+            player.transform.position,
+            radius,
+            LayerMask.GetMask("Enemy")
+        );
+
+        return hits.Length;
+    }
+
+    void DecideRole()
+    {
+        int nearby = CountNearbyEnemies(6f);
+
+        if (nearby >= flankThreshold)
+            isFlanker = Random.value > 0.5f;
+        else
+            isFlanker = false;
+    }
+
+    Vector3 GetGroupFlankPosition()
+    {
+        Vector3 playerPos = player.transform.position;
+
+        Vector3[] offsets =
+        {
+            -player.transform.forward,
+            player.transform.right,
+            -player.transform.right
+        };
+
+        Vector3 chosen = offsets[Random.Range(0, offsets.Length)];
+        Vector3 target = playerPos + chosen * flankDistance;
+
+        if (NavMesh.SamplePosition(target, out NavMeshHit hit, 2f, NavMesh.AllAreas))
+            return hit.position;
+
+        return playerPos;
     }
 }
